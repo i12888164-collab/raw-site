@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { orderLinks } from "@/lib/sections";
 import { getPackages, renderPackage } from "@/lib/packages";
@@ -50,50 +51,51 @@ function GameCard({ name, items }) {
 
   return (
     <motion.div className="game-card" variants={cardAnim}>
-      <div className="game-card-header">
-        <div className="game-card-dot" />
-        <div>
-          <div className="game-card-cat">{meta?.category || src.category || ""}</div>
-          <div className="game-card-name">{name}</div>
-        </div>
-        {galleryCount > 1 ? <span className="card-gallery-badge" style={{ marginLeft: "auto" }}>+{galleryCount - 1} 📷</span> : null}
-      </div>
-      <div className="game-card-body">
-        {cover !== "/placeholder.svg" ? (
-          <div className="game-card-media">
-            <img src={cover} alt={name} loading="lazy" />
-          </div>
-        ) : null}
-
-        {packs ? (
-          <div className="pack-grid">
-            {packs.map((p, i) => (
-              <button
-                key={i}
-                className={`pack-btn ${selected % packs.length === i ? "pack-btn-active" : ""}`}
-                onClick={() => setSelected(i)}
-              >
-                <span className="pack-amount">{Number(p.amount).toLocaleString("ru-RU")}</span>
-                <span className="pack-cur">{p.currency}</span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="game-card-price-only">{src.price}</div>
-        )}
-
-        <div className="game-card-bottom">
+      <Link href={`/game-topup/${source.id}`} className="game-card-link">
+        <div className="game-card-header">
+          <div className="game-card-dot" />
           <div>
-            <div className="game-price-label">ЦЕНА</div>
-            <div className="game-price-value">
-              {current ? current.price : src.price}
-              {current ? <span className="card-usd"> {renderPackage(current).split("·")[1] || ""}</span> : null}
+            <div className="game-card-cat">{meta?.category || src.category || ""}</div>
+            <div className="game-card-name">{name}</div>
+          </div>
+          {galleryCount > 1 ? <span className="card-gallery-badge" style={{ marginLeft: "auto" }}>+{galleryCount - 1} 📷</span> : null}
+        </div>
+        <div className="game-card-body">
+          {cover !== "/placeholder.svg" ? (
+            <div className="game-card-media">
+              <img src={cover} alt={name} loading="lazy" />
             </div>
+          ) : null}
+
+          {packs ? (
+            <div className="pack-grid">
+              {packs.map((p, i) => (
+                <button
+                  key={i}
+                  className={`pack-btn ${selected % packs.length === i ? "pack-btn-active" : ""}`}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelected(i); }}
+                >
+                  <span className="pack-amount">{Number(p.amount).toLocaleString("ru-RU")}</span>
+                  <span className="pack-cur">{p.currency}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="game-card-price-only">{src.price}</div>
+          )}
+        </div>
+      </Link>
+      <div className="game-card-bottom">
+        <div>
+          <div className="game-price-label">ЦЕНА</div>
+          <div className="game-price-value">
+            {current ? current.price : src.price}
+            {current ? <span className="card-usd"> {renderPackage(current).split("·")[1] || ""}</span> : null}
           </div>
-          <div className="order-buttons">
-            <a className="order-btn" href={links.telegram} target="_blank" rel="noopener noreferrer" title="Заказать в Telegram">TG</a>
-            <a className="order-btn" href={links.whatsapp} target="_blank" rel="noopener noreferrer" title="Заказать в WhatsApp">WA</a>
-          </div>
+        </div>
+        <div className="order-buttons">
+          <a className="order-btn" href={links.telegram} target="_blank" rel="noopener noreferrer" title="Заказать в Telegram" onClick={(e) => e.stopPropagation()}>TG</a>
+          <a className="order-btn" href={links.whatsapp} target="_blank" rel="noopener noreferrer" title="Заказать в WhatsApp" onClick={(e) => e.stopPropagation()}>WA</a>
         </div>
       </div>
     </motion.div>
