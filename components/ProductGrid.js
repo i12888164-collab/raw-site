@@ -1,16 +1,17 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 import { orderLinks } from "@/lib/sections";
 import { getPackages } from "@/lib/packages";
 import { priceToUsd } from "@/lib/currency";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
-const item = {
-  hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } },
-};
+// Apple §4 + §14: critically-damped spring; reduced-motion keeps opacity, drops the y-travel.
+const makeItem = (reduce) => ({
+  hidden: { opacity: 0, y: reduce ? 0 : 22 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0, duration: 0.45 } },
+});
 
 // Компактный рендер пакетов на карточке доната
 function PackPills({ packs }) {
@@ -63,10 +64,12 @@ function GalleryStrip({ images, alt }) {
   );
 }
 
-function Card({ p }) {
+function Card({ p, reduce }) {
   const links = orderLinks(p);
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
+  // Apple §3/§4: spring-smoothed pointer tracking — inherently interruptible and
+  // velocity-aware, so the tilt follows the finger and never "snaps" on release.
   const srx = useSpring(rx, { stiffness: 200, damping: 20 });
   const sry = useSpring(ry, { stiffness: 200, damping: 20 });
 
@@ -90,7 +93,7 @@ function Card({ p }) {
   return (
     <motion.div
       className="card"
-      variants={item}
+      variants={makeItem(reduce)}
       style={{ rotateX: srx, rotateY: sry, transformPerspective: 700 }}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
@@ -147,6 +150,7 @@ function Card({ p }) {
 }
 
 export default function ProductGrid({ products }) {
+  const reduce = useReducedMotion();
   if (!products || products.length === 0) {
     return <div className="empty-state">Товары скоро появятся — загляни чуть позже.</div>;
   }
@@ -154,7 +158,7 @@ export default function ProductGrid({ products }) {
   return (
     <motion.div className="grid" variants={container} initial="hidden" animate="show">
       {products.map((p) => (
-        <Card key={p.id} p={p} />
+        <Card key={p.id} p={p} reduce={reduce} />
       ))}
     </motion.div>
   );

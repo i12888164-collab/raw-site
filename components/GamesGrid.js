@@ -1,16 +1,17 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { orderLinks } from "@/lib/sections";
 import { getPackages, renderPackage } from "@/lib/packages";
 import { GAMES } from "@/lib/games";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-const cardAnim = {
-  hidden: { opacity: 0, y: 24, scale: 0.97 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.45, ease: [0.25, 0.1, 0.25, 1] } },
-};
+// Apple §4 + §14: critically-damped spring; reduced-motion drops the y/scale travel.
+const makeCardAnim = (reduce) => ({
+  hidden: { opacity: 0, y: reduce ? 0 : 24, scale: reduce ? 1 : 0.97 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", bounce: 0, duration: 0.5 } },
+});
 
 // Группируем товары доната по названию игры (product.name).
 function groupGames(products) {
@@ -26,7 +27,7 @@ function groupGames(products) {
   return order;
 }
 
-function GameCard({ name, items }) {
+function GameCard({ name, items, reduce }) {
   // Собираем все пакеты из всех товаров этой игры
   const allPacks = [];
   items.forEach((it) => getPackages(it).forEach((p) => allPacks.push({ ...p, _src: it })));
@@ -50,7 +51,7 @@ function GameCard({ name, items }) {
   const links = orderLinks(src, current);
 
   return (
-    <motion.div className="game-card" variants={cardAnim}>
+    <motion.div className="game-card" variants={makeCardAnim(reduce)}>
       <Link href={`/game-topup/${source.id}`} className="game-card-link">
         <div className="game-card-header">
           <div className="game-card-dot" />
@@ -103,6 +104,7 @@ function GameCard({ name, items }) {
 }
 
 export default function GamesGrid({ products }) {
+  const reduce = useReducedMotion();
   if (!products || products.length === 0) {
     return <div className="empty-state">Игры скоро появятся — загляни чуть позже.</div>;
   }
@@ -112,7 +114,7 @@ export default function GamesGrid({ products }) {
   return (
     <motion.div className="grid" variants={container} initial="hidden" animate="show">
       {groups.map((g) => (
-        <GameCard key={g.name} name={g.name} items={g.items} />
+        <GameCard key={g.name} name={g.name} items={g.items} reduce={reduce} />
       ))}
     </motion.div>
   );

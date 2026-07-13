@@ -4,10 +4,12 @@ import Link from "next/link";
 import { SECTIONS } from "@/lib/sections";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.14, delayChildren: 0.05 } } };
-const item = {
-  hidden: { opacity: 0, y: 40, scale: 0.96 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] } },
-};
+// Apple §4 + §14: critically-damped spring; under reduced-motion the entrance
+// drops the y/scale travel and uses opacity only.
+const makeItem = (reduce) => ({
+  hidden: { opacity: 0, y: reduce ? 0 : 40, scale: reduce ? 1 : 0.96 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", bounce: 0, duration: 0.6 } },
+});
 
 const slugs = Object.keys(SECTIONS);
 
@@ -32,7 +34,7 @@ function Portal({ slug, s, index }) {
   }
 
   return (
-    <motion.div variants={item} className="portal-col">
+    <motion.div variants={makeItem(reduce)} className="portal-col">
       <motion.div className="portal-perspective" onMouseMove={handleMove} onMouseLeave={handleLeave}>
         <Link href={`/${slug}`} className="portal" data-brand={slug} style={{ "--accent": s.accent }}>
           <div className="portal-duotone" />

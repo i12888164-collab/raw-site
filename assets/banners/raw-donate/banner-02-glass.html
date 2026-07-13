@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>RAW DONATE — Glassmorphism</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:1600px; height:500px; }
+  body {
+    font-family:"Segoe UI", system-ui, sans-serif; overflow:hidden; color:#fff; position:relative;
+    background:
+      radial-gradient(60% 80% at 80% 20%, #a855f7 0%, transparent 55%),
+      radial-gradient(50% 70% at 15% 90%, #6d28d9 0%, transparent 55%),
+      radial-gradient(40% 60% at 50% 50%, #7c3aed 0%, transparent 60%),
+      #0b0716;
+  }
+  .blob { position:absolute; border-radius:50%; filter:blur(60px); opacity:.8; }
+  .b1 { width:520px; height:520px; background:#c026d3; left:-120px; top:-160px; }
+  .b2 { width:480px; height:480px; background:#7c3aed; right:-100px; bottom:-180px; }
+  .glass {
+    position:absolute; z-index:2; left:120px; top:50%; transform:translateY(-50%);
+    width:760px; padding:56px 60px; border-radius:28px;
+    background:rgba(255,255,255,.08);
+    -webkit-backdrop-filter:blur(22px); backdrop-filter:blur(22px);
+    border:1px solid rgba(255,255,255,.25);
+    box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .eyebrow { font-size:18px; letter-spacing:.5em; text-transform:uppercase; color:#e9d5ff; margin-bottom:16px; }
+  h1 { font-size:104px; line-height:.95; font-weight:800; text-transform:uppercase; letter-spacing:-.02em; }
+  h1 span { color:#d8b4fe; }
+  .sub { margin-top:20px; font-size:25px; color:#f3e8ff; max-width:560px; }
+  .cta {
+    margin-top:32px; display:inline-flex; align-items:center; gap:12px;
+    padding:16px 36px; border-radius:14px; color:#fff; font-size:21px; font-weight:700; text-decoration:none;
+    background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.4);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  }
+  .trust { position:absolute; z-index:3; right:90px; bottom:60px; display:flex; flex-direction:column; gap:14px; }
+  .chip {
+    padding:14px 22px; border-radius:14px; text-align:center;
+    background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.22);
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  }
+  .chip b { display:block; font-size:28px; }
+  .chip small { font-size:13px; letter-spacing:.15em; color:#e9d5ff; text-transform:uppercase; }
+</style>
+</head>
+<body>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="glass">
+    <div class="eyebrow">MY SHOP · Gaming</div>
+    <h1>RAW <span>DONATE</span></h1>
+    <div class="sub">Пополнение игр за 1 минуту. Гарантия зачисления 100%.</div>
+    <a class="cta" href="#">Выбрать игру →</a>
+  </div>
+  <div class="trust">
+    <div class="chip"><b>24/7</b><small>Поддержка</small></div>
+    <div class="chip"><b>1 мин</b><small>Зачисление</small></div>
+    <div class="chip"><b>100%</b><small>Гарантия</small></div>
+  </div>
+</body>
+</html>

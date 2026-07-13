@@ -1,16 +1,19 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ChevronDown, Check } from "lucide-react";
 import { SECTIONS } from "@/lib/sections";
 
 const stagger = { show: { transition: { staggerChildren: 0.12 } } };
-const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-};
 
 export default function Hero({ slug }) {
   const s = SECTIONS[slug];
+  const reduce = useReducedMotion();
+  // Apple §4: critically-damped spring (no overshoot) for UI entrance.
+  // Apple §14: drop the positional travel under prefers-reduced-motion, keep opacity.
+  const fadeUp = {
+    hidden: { opacity: 0, y: reduce ? 0 : 28 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0, duration: 0.5 } },
+  };
 
   return (
     <section className="hero" style={{ "--accent": s.accent }}>

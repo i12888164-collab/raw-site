@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 // Интерактивная галерея товара в Apple-стиле:
 // - мгновенный отклик по клику (без ожидания анимации),
@@ -11,6 +11,10 @@ export default function ProductGallery({ images, name, accent = "#c9a96e" }) {
   const [idx, setIdx] = useState(0);
   const count = images.length;
   const safeIdx = Math.min(idx, count - 1);
+  const reduce = useReducedMotion();
+  // Apple §14: under reduced-motion we drop the horizontal slide so the
+  // transition reads as a calm opacity cross-fade.
+  const dx = reduce ? 0 : 24;
 
   function go(dir) {
     setIdx((i) => {
@@ -28,9 +32,10 @@ export default function ProductGallery({ images, name, accent = "#c9a96e" }) {
           <motion.div
             key={safeIdx}
             className="pg-slide"
-            initial={{ opacity: 0, x: 24 }}
+            // Apple §4: critically-damped spring slide between photos.
+            initial={{ opacity: 0, x: dx }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -24 }}
+            exit={{ opacity: 0, x: -dx }}
             transition={{ type: "spring", bounce: 0, duration: 0.4 }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}

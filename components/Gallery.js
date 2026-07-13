@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 // Интерактивная галерея: большое фото + миниатюры под ним.
 // Первая картинка = обложка. Клик по миниатюре плавно меняет активное фото.
 export default function Gallery({ images, alt }) {
   const [active, setActive] = useState(0);
+  const reduce = useReducedMotion();
   const safe = images && images.length ? images : [];
   if (safe.length === 0) return null;
 
@@ -17,10 +18,12 @@ export default function Gallery({ images, alt }) {
             key={safe[active]}
             src={safe[active]}
             alt={alt}
-            initial={{ opacity: 0, scale: 1.02 }}
+            // Apple §4 + §14: critically-damped spring; reduced-motion keeps only the
+            // opacity cross-fade and drops the subtle scale settle.
+            initial={{ opacity: 0, scale: reduce ? 1 : 1.02 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ type: "spring", bounce: 0, duration: 0.35 }}
             onError={(e) => {
               if (e.currentTarget.src !== window.location.origin + "/placeholder.svg")
                 e.currentTarget.src = "/placeholder.svg";

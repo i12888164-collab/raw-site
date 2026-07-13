@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>RAW DONATE — Bold Typography</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:1600px; height:500px; }
+  body {
+    font-family:"Arial Black", Impact, "Segoe UI", sans-serif; overflow:hidden; color:#fff; position:relative;
+    background:linear-gradient(120deg,#1a0b2e,#3b0d63 60%,#7c3aed);
+  }
+  .ink {
+    position:absolute; z-index:1; right:-40px; bottom:-90px;
+    font-size:440px; font-weight:900; color:rgba(255,255,255,.06); line-height:1; user-select:none;
+  }
+  .inner { position:relative; z-index:2; height:100%; display:flex; flex-direction:column; justify-content:center; padding:0 90px; }
+  .eyebrow { font-family:"Segoe UI",sans-serif; font-size:18px; letter-spacing:.5em; text-transform:uppercase; color:#e9d5ff; margin-bottom:10px; }
+  h1 { font-size:150px; line-height:.85; font-weight:900; text-transform:uppercase; letter-spacing:-.03em; }
+  h1 span { color:#0b0716; -webkit-text-stroke:3px #fff; }
+  .sub { font-family:"Segoe UI",sans-serif; margin-top:18px; font-size:27px; font-weight:600; color:#f3e8ff; max-width:760px; }
+  .cta {
+    font-family:"Segoe UI",sans-serif; margin-top:32px; width:max-content; padding:18px 40px; border-radius:14px;
+    background:#fff; color:#3b0d63; font-size:22px; font-weight:800; text-decoration:none;
+    box-shadow:0 14px 40px rgba(0,0,0,.35);
+  }
+  .trust { position:absolute; z-index:3; right:80px; bottom:56px; display:flex; gap:14px; }
+  .chip { text-align:center; padding:14px 20px; border-radius:12px; background:rgba(11,7,22,.35); border:2px solid #fff; }
+  .chip b { display:block; font-size:26px; font-family:"Segoe UI",sans-serif; }
+  .chip small { font-family:"Segoe UI",sans-serif; font-size:12px; letter-spacing:.15em; color:#e9d5ff; text-transform:uppercase; }
+</style>
+</head>
+<body>
+  <div class="ink">$</div>
+  <div class="inner">
+    <div class="eyebrow">MY SHOP · Gaming</div>
+    <h1>RAW<br><span>DONATE</span></h1>
+    <div class="sub">Пополнение игр за 1 минуту. Гарантия зачисления 100%.</div>
+    <a class="cta" href="#">Выбрать игру →</a>
+  </div>
+  <div class="trust">
+    <div class="chip"><b>24/7</b><small>Поддержка</small></div>
+    <div class="chip"><b>1 мин</b><small>Зачисление</small></div>
+    <div class="chip"><b>100%</b><small>Гарантия</small></div>
+  </div>
+</body>
+</html>
