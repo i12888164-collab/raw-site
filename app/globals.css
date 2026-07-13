@@ -417,6 +417,14 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   padding:.6rem .7rem; color:var(--fg); font-family:var(--body); font-size:.92rem;
 }
 .field textarea{ resize:vertical; min-height:60px; }
+.chips-row{ display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.5rem; }
+.chip{
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.04em; text-transform:uppercase;
+  padding:.34rem .6rem; border:1px solid var(--line); border-radius:20px; cursor:pointer;
+  background:transparent; color:var(--muted); transition:all .18s ease;
+}
+.chip:hover{ color:var(--fg); border-color:var(--fg); }
+.chip-on{ color:#0e0e10; background:var(--fg); border-color:var(--fg); }
 .field-hint{ font-family:var(--mono); font-size:.68rem; color:var(--accent, var(--muted)); margin-top:.3rem; }
 .submit-btn{
   margin-top:.4rem; padding:.7rem; border-radius:3px; border:none; cursor:pointer;

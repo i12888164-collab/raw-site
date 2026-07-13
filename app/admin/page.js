@@ -2,7 +2,30 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SECTIONS } from "@/lib/sections";
-import { GAMES, currencyForGame } from "@/lib/games";
+import { GAMES, currencyForGame, packsForGame } from "@/lib/games";
+
+// Готовые заготовки размеров одежды (клик — добавляет размер в поле)
+const CLOTHING_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "UNI"];
+// Размеры обуви (отдельный набор)
+const SHOE_SIZES = ["38", "39", "40", "41", "42", "43", "44", "45"];
+// Шаблоны "пачкой" под каждый раздел
+const BULK_TEMPLATES = {
+  "raw-street":
+    "Название | Категория | Цена | Размеры | Тег\n" +
+    "Худи Oversize | ХУДИ | 220 000 сум | S,M,L | NEW\n" +
+    "Куртка Bomber | КУРТКИ | 480 000 сум | M,L\n" +
+    "Футболка Basic | ФУТБОЛКИ | 150 000 сум | S,M,L,XL",
+  "game-topup":
+    "Игра | Платформа | Цена | Количество | Тег\n" +
+    "PUBG MOBILE | MOBILE | 35 000 сум | 60 UC | HOT\n" +
+    "FREE FIRE | MOBILE | 90 000 сум | 310 Diamonds\n" +
+    "VALORANT | PC | 120 000 сум | 1000 VP",
+  "sportswear":
+    "Название | Категория | Цена | Размеры | Тег\n" +
+    "Рашгард Pro | РАШГАРДЫ | 180 000 сум | M,L,XL | NEW\n" +
+    "Шорты Training | ШОРТЫ | 120 000 сум | S,M,L\n" +
+    "Кроссовки Speed | КРОССОВКИ | 420 000 сум | 41,42,43",
+};
 
 const EMPTY_FORM = {
   section: "raw-street", category: "", name: "", variant: "", price: "",
@@ -28,7 +51,29 @@ export default function AdminPage() {
   const [bulkUploading, setBulkUploading] = useState(false);
 
   const isGames = activeTab === "game-topup";
+  const isClothing = activeTab === "raw-street" || activeTab === "sportswear";
   const currency = isGames ? currencyForGame(form.name) : "";
+  const packs = isGames ? packsForGame(form.name) : [];
+
+  // Переключатель размера в поле variant (для одежды/обуви)
+  function toggleSize(size) {
+    const current = (form.variant || "").split(",").map((s) => s.trim()).filter(Boolean);
+    const next = current.includes(size)
+      ? current.filter((s) => s !== size)
+      : [...current, size];
+    setForm((f) => ({ ...f, variant: next.join(",") }));
+  }
+  function sizesArray() {
+    return (form.variant || "").split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  // Заполнить количество готовым паком
+  function applyPack(pack) {
+    setGameAmount(pack.split(" ")[0] || pack);
+  }
+  // Быстрый чип категории
+  function setCategoryQuick(cat) {
+    setForm((f) => ({ ...f, category: cat }));
+  }
 
   async function loadProducts() {
     const res = await fetch("/api/admin/products");
@@ -177,12 +222,9 @@ export default function AdminPage() {
     setBulkPreview(parsed.map((row, i) => ({ ...row, image_url: bulkImages[i] || null })));
   }
 
-  // Вставить готовый шаблон-пример одной кнопкой
+  // Вставить готовый шаблон под текущий раздел одной кнопкой
   function fillBulkTemplate() {
-    const tpl =
-      "Название товара | Категория | Цена | Вариант | Тег\n" +
-      "Худи Oversize | ХУДИ | 220 000 сум | S,M,L | NEW\n" +
-      "Куртка Bomber | КУРТКИ | 480 000 сум | M";
+    const tpl = BULK_TEMPLATES[activeTab] || "";
     setBulkText(tpl);
     onBulkTextChange({ target: { value: tpl } });
   }
@@ -223,6 +265,7 @@ export default function AdminPage() {
   const visible = products.filter((p) => p.section === activeTab);
   const categoryOptions = SECTIONS[activeTab].categories.filter((c) => c !== "ВСЕ");
   const validBulkCount = bulkPreview.filter((r) => r.name && r.price).length;
+  const selectedSizes = sizesArray();
 
   return (
     <div className="admin-shell">
@@ -272,6 +315,13 @@ export default function AdminPage() {
                 <div className="field">
                   <label>Количество {currency ? `(${currency})` : ""}</label>
                   <input value={gameAmount} onChange={(e) => setGameAmount(e.target.value)} placeholder="660" required />
+                  {packs.length > 0 ? (
+                    <div className="chips-row">
+                      {packs.map((pk) => (
+                        <button type="button" key={pk} className="chip" onClick={() => applyPack(pk)}>{pk}</button>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               </>
             ) : (
@@ -286,11 +336,33 @@ export default function AdminPage() {
                     <option value="">Без категории</option>
                     {categoryOptions.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
+                  <div className="chips-row">
+                    {categoryOptions.map((c) => (
+                      <button type="button" key={c} className={`chip ${form.category === c ? "chip-on" : ""}`} onClick={() => setCategoryQuick(c)}>{c}</button>
+                    ))}
+                  </div>
                 </div>
-                <div className="field">
-                  <label>Варианты (через запятую: S, M, L)</label>
-                  <input value={form.variant} onChange={(e) => setForm({ ...form, variant: e.target.value })} />
-                </div>
+                {isClothing ? (
+                  <div className="field">
+                    <label>Размеры (нажми, чтобы добавить)</label>
+                    <input value={form.variant} onChange={(e) => setForm({ ...form, variant: e.target.value })} placeholder="S,M,L" />
+                    <div className="chips-row">
+                      {CLOTHING_SIZES.map((s) => (
+                        <button type="button" key={s} className={`chip ${selectedSizes.includes(s) ? "chip-on" : ""}`} onClick={() => toggleSize(s)}>{s}</button>
+                      ))}
+                    </div>
+                    <div className="chips-row" style={{ marginTop: ".4rem" }}>
+                      {SHOE_SIZES.map((s) => (
+                        <button type="button" key={s} className={`chip ${selectedSizes.includes(s) ? "chip-on" : ""}`} onClick={() => toggleSize(s)}>{s}</button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="field">
+                    <label>Варианты (через запятую)</label>
+                    <input value={form.variant} onChange={(e) => setForm({ ...form, variant: e.target.value })} placeholder="S,M,L" />
+                  </div>
+                )}
               </>
             )}
 
