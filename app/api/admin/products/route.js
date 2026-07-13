@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { cleanProduct } from "@/lib/validate";
+import { isSameOrigin } from "@/lib/csrf";
 
 export async function GET() {
   const { data, error } = await supabaseAdmin
@@ -13,16 +15,25 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const body = await request.json();
-  const { section, category, name, variant, price, description, tag, image_url } = body;
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ error: "Недопустимый источник запроса" }, { status: 403 });
+  }
 
-  if (!section || !name || !price) {
-    return NextResponse.json({ error: "Заполни раздел, название и цену" }, { status: 400 });
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Некорректный JSON" }, { status: 400 });
+  }
+
+  const product = cleanProduct(body);
+  if (!product) {
+    return NextResponse.json({ error: "Заполни раздел, название и цену корректно" }, { status: 400 });
   }
 
   const { data, error } = await supabaseAdmin
     .from("products")
-    .insert([{ section, category, name, variant, price, description, tag, image_url }])
+    .insert([product])
     .select()
     .single();
 

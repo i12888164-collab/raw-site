@@ -1,20 +1,53 @@
 import { NextResponse } from "next/server";
+import { createSessionToken } from "@/lib/session";
+import {
+  getClientIp,
+  isLoginBlocked,
+  registerLoginFailure,
+  registerLoginSuccess,
+} from "@/lib/ratelimit";
+
+const SESSION_MAX_AGE = 60 * 60 * 24 * 14; // 14 дней
 
 export async function POST(request) {
-  const { password } = await request.json();
+  const ip = getClientIp(request);
 
-  if (password !== process.env.ADMIN_PASSWORD) {
+  if (isLoginBlocked(ip)) {
+    return NextResponse.json(
+      { error: "Слишком много попыток. Попробуйте позже." },
+      { status: 429 }
+    );
+  }
+
+  let password;
+  try {
+    ({ password } = await request.json());
+  } catch {
+    password = undefined;
+  }
+
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  // Требуем, чтобы пароль был задан и достаточно длинным (защита от
+  // дефолтных/коротких паролей в .env.local.example).
+  const passwordOk =
+    adminPassword &&
+    adminPassword.length >= 12 &&
+    password === adminPassword;
+
+  if (!passwordOk) {
+    registerLoginFailure(ip);
     return NextResponse.json({ error: "Неверный пароль" }, { status: 401 });
   }
 
+  registerLoginSuccess(ip);
+  const token = await createSessionToken(SESSION_MAX_AGE);
+
   const res = NextResponse.json({ ok: true });
-  res.cookies.set("admin_session", "ok", {
+  res.cookies.set("admin_session", token, {
     httpOnly: true,
-    // secure: только на HTTPS. На локальном HTTP (localhost) браузер не отдаёт
-    // secure-cookie, и логин перестаёт работать — поэтому выключаем в dev.
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 14, // 14 дней
+    maxAge: SESSION_MAX_AGE,
     path: "/",
   });
   return res;

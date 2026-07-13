@@ -15,6 +15,15 @@ export default function Hero({ slug }) {
   return (
     <section className="hero" style={{ "--accent": s.accent }}>
       <div className="hero-bg" />
+      {s.heroImage ? (
+        <div className="hero-photo">
+          <img
+            src={s.heroImage}
+            alt=""
+            onError={(e) => { e.currentTarget.parentElement.style.display = "none"; }}
+          />
+        </div>
+      ) : null}
       <motion.div className="hero-content" initial="hidden" animate="show" variants={stagger}>
         <motion.div variants={fadeUp} className="hero-badge">{s.badge}</motion.div>
 

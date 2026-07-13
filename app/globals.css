@@ -143,6 +143,20 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   background-size:44px 44px;
   mask-image:radial-gradient(80% 80% at 50% 100%, black 30%, transparent 75%);
 }
+.hero-photo{
+  position:absolute; inset:0; z-index:0;
+}
+.hero-photo img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:center;
+}
+.hero-photo::after{
+  content:""; position:absolute; inset:0;
+  background:
+    linear-gradient(180deg, rgba(8,8,10,0.72) 0%, rgba(8,8,10,0.38) 45%, rgba(8,8,10,0.82) 100%),
+    radial-gradient(70% 60% at 15% 100%, color-mix(in srgb, var(--accent) 30%, transparent) 0%, transparent 60%),
+    radial-gradient(60% 50% at 90% 0%, color-mix(in srgb, var(--accent) 22%, transparent) 0%, transparent 55%);
+}
 .hero-content{ position:relative; z-index:1; max-width:900px; }
 .hero-badge{
   font-family:var(--mono); font-size:.68rem; letter-spacing:.25em; color:var(--accent); margin-bottom:1rem;
@@ -166,15 +180,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .hero-cta-secondary{ background:transparent; color:var(--fg); border:1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
 .hero-cta-primary:hover, .hero-cta-secondary:hover{ transform:translateY(-2px); }
 .hero-scroll-hint{ position:absolute; bottom:1.6rem; left:50%; transform:translateX(-50%); color:var(--accent); z-index:1; }
-
-/* Features / stats bar (games section) */
-.stats-bar{
-  background:var(--bg-soft); border-top:1px solid rgba(255,255,255,0.05); border-bottom:1px solid rgba(255,255,255,0.05);
-}
-.stats-inner{ max-width:1200px; margin:0 auto; padding:1.1rem 1.6rem; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1rem; }
-.stat-item{ text-align:center; }
-.stat-value{ font-family:var(--display); font-weight:700; font-size:clamp(1.3rem,3vw,2rem); color:var(--accent); }
-.stat-label{ font-family:var(--mono); font-size:.6rem; letter-spacing:.15em; color:var(--muted); margin-top:.2rem; }
 
 .feature-badges{ display:flex; gap:1.4rem; flex-wrap:wrap; margin-top:1.2rem; }
 .feature-badge{ display:flex; align-items:center; gap:.5rem; font-family:var(--mono); font-size:.65rem; letter-spacing:.12em; color:var(--accent); }
@@ -229,6 +234,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   font-family:var(--mono); font-size:.55rem; letter-spacing:.16em; font-weight:700;
   background:var(--accent); color:#08080a; padding:.2rem .5rem;
 }
+.card-gallery-count{
+  position:absolute; bottom:.7rem; right:.7rem; z-index:2;
+  font-family:var(--mono); font-size:.55rem; letter-spacing:.08em; font-weight:700;
+  background:rgba(8,8,10,.66); color:var(--fg); padding:.22rem .5rem; border-radius:20px;
+  backdrop-filter:blur(4px);
+}
 .card-section-badge{
   position:absolute; top:.7rem; right:.7rem; z-index:2;
   font-family:var(--mono); font-size:.6rem; letter-spacing:.1em; font-weight:700;
@@ -257,6 +268,32 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .order-btn:hover{ background:var(--accent); border-color:var(--accent); color:#08080a; transform:scale(1.08); }
 
 .empty-state{ max-width:1200px; margin:0 auto; padding:4rem 1.8rem; color:var(--muted); font-family:var(--mono); font-size:.85rem; text-transform:uppercase; letter-spacing:.08em; }
+
+/* ================= GALLERY (страница товара) ================= */
+.gallery{ display:flex; flex-direction:column; gap:.7rem; }
+.gallery-stage{
+  position:relative; aspect-ratio:3/4; overflow:hidden;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0 2px, transparent 2px 14px),
+    linear-gradient(160deg, color-mix(in srgb, var(--accent) 20%, #000) 0%, #050506 75%);
+  border:1px solid rgba(255,255,255,0.06);
+}
+.gallery-stage img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.gallery-counter{
+  position:absolute; bottom:.7rem; right:.7rem; z-index:2;
+  font-family:var(--mono); font-size:.58rem; letter-spacing:.1em;
+  background:rgba(8,8,10,.66); color:var(--fg); padding:.24rem .55rem; border-radius:20px;
+  backdrop-filter:blur(4px);
+}
+.gallery-thumbs{ display:flex; gap:.5rem; flex-wrap:wrap; }
+.gallery-thumb{
+  width:64px; height:64px; border-radius:4px; overflow:hidden; cursor:pointer;
+  padding:0; border:1px solid var(--line); background:var(--bg-soft-2);
+  transition:border-color .2s ease, transform .2s ease;
+}
+.gallery-thumb img{ width:100%; height:100%; object-fit:cover; }
+.gallery-thumb:hover{ transform:translateY(-2px); }
+.gallery-thumb-active{ border-color:var(--accent); }
 
 /* ================= GAME PACK CARDS ================= */
 .game-card{
@@ -452,6 +489,88 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .icon-btn:hover{ color:var(--fg); border-color:var(--fg); }
 .icon-btn.danger:hover{ color:var(--raw); border-color:var(--raw); }
 
+/* Dropzone загрузки фото (drag&drop) */
+.dropzone{
+  border:1.5px dashed var(--line); border-radius:4px; padding:.9rem; text-align:center;
+  background:var(--bg); transition:border-color .2s ease, background .2s ease; position:relative;
+}
+.dropzone.dragging{ border-color:var(--fg); background:var(--bg-soft-2); }
+.dropzone input[type="file"]{ display:none; }
+.dropzone-label{ display:block; font-family:var(--mono); font-size:.72rem; color:var(--muted); cursor:pointer; }
+.dropzone.dragging .dropzone-label{ color:var(--fg); }
+.dropzone-preview{ width:64px; height:64px; object-fit:cover; border-radius:3px; margin:.6rem auto 0; display:block; }
+
+/* Галерея в админке (редактирование нескольких фото) */
+.gallery-edit{ display:grid; grid-template-columns:repeat(auto-fill, minmax(72px,1fr)); gap:.5rem; margin-top:.6rem; }
+.gallery-edit-item{
+  position:relative; border:1px solid var(--line); border-radius:4px; overflow:hidden;
+  background:var(--bg-soft-2); aspect-ratio:3/4;
+}
+.gallery-edit-item img{ width:100%; height:100%; object-fit:cover; }
+.gallery-edit-actions{ position:absolute; left:0; right:0; bottom:0; display:flex; gap:.2rem; padding:.2rem; background:linear-gradient(0deg, rgba(8,8,10,.9), transparent); }
+.gallery-edit-actions .mini-btn, .gallery-edit-actions .pkg-x{ font-size:.6rem; padding:.2rem .4rem; }
+.gallery-cover-badge{
+  position:absolute; top:.2rem; left:.2rem; font-family:var(--mono); font-size:.5rem; letter-spacing:.1em;
+  background:var(--accent); color:#08080a; padding:.16rem .4rem; border-radius:20px; font-weight:700;
+}
+
+/* Живой предпросмотр карточки */
+.admin-body.with-preview{ grid-template-columns:340px 300px 1fr; }
+@media (max-width:1100px){ .admin-body.with-preview{ grid-template-columns:1fr; } }
+.admin-preview{ background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:1rem; height:fit-content; position:sticky; top:1rem; }
+.preview-label{ font-family:var(--mono); font-size:.66rem; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; margin-bottom:.8rem; }
+.preview-card{ border:1px solid rgba(255,255,255,.08); border-radius:6px; overflow:hidden; background:#060609; }
+.preview-media{ position:relative; aspect-ratio:3/4; background:linear-gradient(160deg, color-mix(in srgb, var(--accent) 22%, #000) 0%, #050506 75%); }
+.preview-media img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.preview-tag{ position:absolute; top:.6rem; left:.6rem; font-family:var(--mono); font-size:.55rem; letter-spacing:.16em; font-weight:700; background:var(--accent); color:#08080a; padding:.2rem .5rem; }
+.preview-body{ padding:.9rem 1rem 1.1rem; }
+.preview-cat{ font-family:var(--mono); font-size:.58rem; letter-spacing:.18em; color:var(--accent); opacity:.85; }
+.preview-name{ font-weight:600; font-size:.95rem; margin:.3rem 0 .2rem; line-height:1.2; }
+.preview-sub{ font-family:var(--body); font-size:.78rem; color:var(--muted); }
+.preview-price{ font-family:var(--mono); font-size:1rem; margin-top:.6rem; }
+.preview-gallery-thumbs{ display:flex; gap:.3rem; margin-top:.6rem; }
+.preview-gallery-thumbs img{ width:34px; height:34px; object-fit:cover; border-radius:3px; border:1px solid var(--line); }
+
+/* Список товаров: поиск + мультивыбор */
+.admin-list-col{ min-width:0; }
+.list-toolbar{ display:flex; gap:.8rem; align-items:center; margin-bottom:1rem; flex-wrap:wrap; }
+.search-wrap{ position:relative; flex:1; min-width:220px; }
+.list-search{
+  width:100%; background:var(--bg-soft); border:1px solid var(--line); border-radius:3px;
+  padding:.6rem .9rem; color:var(--fg); font-family:var(--body); font-size:.9rem;
+}
+.list-search:focus{ outline:none; border-color:var(--fg); }
+.search-clear{
+  position:absolute; right:.4rem; top:50%; transform:translateY(-50%);
+  background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:1rem;
+}
+.list-meta{ display:flex; align-items:center; gap:.8rem; }
+.select-all{ display:flex; align-items:center; gap:.4rem; font-family:var(--mono); font-size:.72rem; color:var(--muted); cursor:pointer; white-space:nowrap; }
+.bulk-delete-btn{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; padding:.45rem .8rem; border-radius:3px;
+  border:1px solid var(--raw); background:transparent; color:var(--raw); cursor:pointer; transition:all .2s ease;
+}
+.bulk-delete-btn:hover{ background:var(--raw); color:#08080a; }
+
+.admin-row{ gap:.8rem; padding:.6rem .8rem; }
+.admin-row.selected{ border-color:var(--fg); background:var(--bg-soft-2); }
+.row-check{ width:16px; height:16px; accent-color:var(--fg); cursor:pointer; flex-shrink:0; }
+.admin-row img{ width:46px; height:46px; }
+.admin-row .info .n{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* Модалка подтверждения */
+.modal-overlay{
+  position:fixed; inset:0; z-index:600; background:rgba(6,6,9,.8); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center; padding:1.5rem;
+}
+.modal{
+  width:100%; max-width:380px; background:var(--bg-soft); border:1px solid var(--line);
+  border-radius:6px; padding:1.6rem; display:flex; flex-direction:column; gap:1rem;
+}
+.modal h3{ font-family:var(--display); font-size:1.4rem; }
+.modal p{ color:var(--muted); font-size:.9rem; line-height:1.6; }
+.modal-actions{ display:flex; gap:.6rem; justify-content:flex-end; }
+
 .login-shell{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem; }
 .login-card{
   width:100%; max-width:340px; background:var(--bg-soft); border:1px solid var(--line);
@@ -589,6 +708,90 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   50%{ transform:translate(3px,1px); clip-path:inset(30% 0 30% 0); }
   100%{ transform:translate(-2px,-1px); clip-path:inset(0 0 60% 0); }
 }
+
+/* ================= PACKS (donate) ================= */
+.pack-pills{ display:flex; flex-wrap:wrap; gap:.35rem; margin:.7rem 0; }
+.pack-pill{
+  font-family:var(--mono); font-size:.62rem; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--muted); border:1px solid var(--line); border-radius:20px; padding:.18rem .55rem;
+}
+.pack-pill-more{ color:var(--accent); }
+
+.card-usd{ color:var(--muted); font-size:.7em; margin-left:.3rem; font-weight:400; }
+
+/* Выбор пакета на странице товара */
+.pack-selector{ margin:1rem 0 0; }
+.pack-selector-label{ font-family:var(--mono); font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:.6rem; }
+.pack-selector .pack-grid{ grid-template-columns:1fr 1fr; }
+.pack-btn{
+  display:flex; flex-direction:column; gap:.1rem; align-items:flex-start; text-align:left;
+  font-family:var(--mono); letter-spacing:.03em; padding:.6rem .7rem; cursor:pointer; transition:all .2s ease;
+  border:1px solid var(--line); border-radius:4px; background:var(--bg-soft); color:var(--fg);
+}
+.pack-btn:hover{ border-color:color-mix(in srgb, var(--accent) 60%, transparent); }
+.pack-btn-active{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 14%, transparent); }
+.pack-amount{ font-size:.95rem; font-weight:600; }
+.pack-cur{ font-size:.56rem; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; }
+.pack-price{ font-size:.6rem; color:var(--accent); margin-top:.15rem; }
+.pack-selected-summary{
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  margin-top:1rem; padding:1rem; background:var(--bg-soft); border:1px solid var(--line); border-radius:4px;
+}
+.pack-selected-amount{ font-family:var(--display); font-weight:700; font-size:1.3rem; }
+.pack-selected-usd{ font-family:var(--mono); font-size:.64rem; color:var(--muted); margin-top:.1rem; }
+.pack-selected-price{ font-family:var(--display); font-weight:700; font-size:1.3rem; text-align:right; }
+.game-card-price-only{ font-family:var(--display); font-weight:700; font-size:1.1rem; margin-top:.4rem; }
+
+/* ================= Admin presets ================= */
+.pkg-draft{ display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.4rem; }
+.pkg-draft .pkg-amt{ flex:1; min-width:70px; }
+.pkg-draft .pkg-cur{ width:90px; }
+.pkg-draft .pkg-price{ flex:1; min-width:80px; }
+.pkg-list{ display:flex; flex-direction:column; gap:.35rem; margin-top:.5rem; }
+.pkg-item{
+  display:flex; align-items:center; gap:.5rem; padding:.4rem .6rem;
+  background:var(--bg); border:1px solid var(--line); border-radius:3px;
+  font-family:var(--mono); font-size:.74rem;
+}
+.pkg-render{ flex:1; }
+.pkg-x{ background:transparent; border:none; color:var(--raw); cursor:pointer; font-size:.9rem; }
+.pkg-x:hover{ color:#fff; }
+
+.price-input-wrap{ position:relative; display:flex; align-items:center; }
+.price-input-wrap input{ width:100%; }
+.price-input-wrap .price-usd{ position:absolute; right:.7rem; font-family:var(--mono); font-size:.74rem; color:var(--accent); pointer-events:none; }
+
+.presets-block{ border-top:1px solid var(--line); padding-top:.8rem; }
+.presets-head{ font-family:var(--mono); font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:.5rem; }
+.presets-row{ display:flex; gap:.4rem; }
+.preset-name{ flex:1; }
+.preset-chip{ display:inline-flex; align-items:center; gap:.2rem; }
+.preset-apply{ background:transparent; border:1px solid var(--line); border-radius:20px; padding:.34rem .6rem; color:var(--muted); font-family:var(--mono); font-size:.66rem; text-transform:uppercase; cursor:pointer; transition:all .18s ease; }
+.preset-apply:hover{ color:var(--fg); border-color:var(--fg); }
+.preview-packs{ display:flex; flex-direction:column; gap:.3rem; margin-top:.5rem; }
+.preview-pack{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:.7rem; color:var(--muted); }
+.preview-pack-price{ color:var(--accent); }
+
+.preset-row{
+  display:flex; align-items:center; gap:.5rem; padding:.45rem .6rem; border:1px solid var(--line);
+  border-radius:3px; background:var(--bg); font-family:var(--mono); font-size:.72rem; color:var(--muted);
+  cursor:pointer; transition:all .18s ease;
+}
+.preset-row:hover{ color:var(--fg); border-color:var(--fg); }
+.preset-name{ font-weight:600; color:var(--fg); }
+.preset-meta{ margin-left:auto; font-size:.66rem; }
+.preset-add{
+  margin-top:.5rem; display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;
+}
+.preset-add input{ flex:1; min-width:90px; }
+.preset-del{ margin-left:auto; color:var(--raw); border-color:var(--raw); }
+.preset-del:hover{ background:var(--raw); color:#08080a; }
+.add-card-btn{
+  width:100%; margin-top:.6rem; padding:.55rem; border:1px dashed var(--line); border-radius:3px;
+  background:transparent; color:var(--muted); font-family:var(--mono); font-size:.72rem; letter-spacing:.06em;
+  text-transform:uppercase; cursor:pointer; transition:all .2s ease;
+}
+.add-card-btn:hover{ color:var(--fg); border-color:var(--fg); }
 
 /* ================= Featured section (homepage) ================= */
 .featured-section{ padding-top:1rem; }

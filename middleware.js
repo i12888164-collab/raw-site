@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
+import { verifySessionToken } from "@/lib/session";
 
 // Защищает всё под /admin, кроме страницы логина и API логина.
-export function middleware(request) {
+// Сессия — подписанный HMAC-токен в httpOnly-куке (см. lib/session.js),
+// а не константа "ok", которую раньше мог подделать любой.
+export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   const isLoginPage = pathname === "/admin/login";
@@ -9,8 +12,9 @@ export function middleware(request) {
   if (isLoginPage || isLoginApi) return NextResponse.next();
 
   if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
-    const session = request.cookies.get("admin_session")?.value;
-    if (session !== "ok") {
+    const token = request.cookies.get("admin_session")?.value;
+    const valid = token ? await verifySessionToken(token) : false;
+    if (!valid) {
       if (pathname.startsWith("/api/admin")) {
         return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
       }

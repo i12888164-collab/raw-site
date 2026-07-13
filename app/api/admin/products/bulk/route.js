@@ -1,29 +1,37 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { cleanProduct, ALLOWED_SECTIONS } from "@/lib/validate";
+import { isSameOrigin } from "@/lib/csrf";
 
-// Массовое добавление товаров одним запросом.
-// Тело: { section, rows: [ { name, category, price, variant, tag, image_url, description } ] }
-// Используется формой "Добавить пачкой" в админке.
+const MAX_ROWS = 200; // защита от заваливания БД одним запросом
+
 export async function POST(request) {
-  const body = await request.json();
-  const { section, rows } = body;
-
-  if (!section || !Array.isArray(rows) || rows.length === 0) {
-    return NextResponse.json({ error: "Передай раздел и хотя бы одну строку" }, { status: 400 });
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ error: "Недопустимый источник запроса" }, { status: 403 });
   }
 
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Некорректный JSON" }, { status: 400 });
+  }
+
+  const { section, rows } = body;
+  if (!ALLOWED_SECTIONS.includes(section) || !Array.isArray(rows)) {
+    return NextResponse.json({ error: "Передай раздел и массив строк" }, { status: 400 });
+  }
+  if (rows.length === 0) {
+    return NextResponse.json({ error: "Нет строк для добавления" }, { status: 400 });
+  }
+  if (rows.length > MAX_ROWS) {
+    return NextResponse.json({ error: `Слишком много строк (макс. ${MAX_ROWS})` }, { status: 413 });
+  }
+
+  // Форсируем раздел из пути: строки не могут «перепрыгнуть» в чужой раздел.
   const cleaned = rows
-    .map((r) => ({
-      section,
-      name: (r.name || "").trim(),
-      category: (r.category || "").trim() || null,
-      price: (r.price || "").toString().trim(),
-      variant: (r.variant || "").trim() || null,
-      tag: (r.tag || "").trim() || null,
-      image_url: (r.image_url || "").trim() || null,
-      description: (r.description || "").trim() || null,
-    }))
-    .filter((r) => r.name && r.price);
+    .map((r) => cleanProduct({ ...r, section }))
+    .filter((r) => r);
 
   if (cleaned.length === 0) {
     return NextResponse.json({ error: "Нет валидных строк (нужны название и цена)" }, { status: 400 });

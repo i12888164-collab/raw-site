@@ -1,0 +1,6 @@
+# Кладите сюда фото для фоновых баннеров разделов.
+# Имя файла должно совпадать со slug раздела:
+#   sportswear -> sportswear.jpg
+#   raw-street -> raw-street.jpg
+#   game-topup -> game-topup.jpg
+# Затем укажите путь в lib/sections.js (поле heroImage).

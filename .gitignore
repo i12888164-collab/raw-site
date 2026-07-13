@@ -9,9 +9,16 @@ build.log
 .server.log
 audit.txt
 npm-debug.log*
+dev.log
 
 # Локальная память агента (не часть проекта)
 .crab/
 
+# Скрипты временной инспекции БД и любые временные PAT (секреты)
+scripts/
+.supabase_pat
+
+
 .vercel
 .env*
+build_out.txt  

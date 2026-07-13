@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { sanitizeSearch } from "@/lib/validate";
 
 export async function GET(request) {
-  const q = request.nextUrl.searchParams.get("q")?.trim();
-  if (!q || q.length < 2) {
+  const raw = request.nextUrl.searchParams.get("q") || "";
+  const q = sanitizeSearch(raw);
+  if (q.length < 2) {
     return NextResponse.json({ results: [] });
   }
 
