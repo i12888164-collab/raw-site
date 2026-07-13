@@ -17,15 +17,18 @@ export default function FeaturedGrid({ products }) {
           const meta = SECTIONS[p.section];
           const links = orderLinks(p);
           const packs = getPackages(p);
+          const gallery = Array.isArray(p.gallery) ? p.gallery : [];
+          const cover = gallery[0] || p.image_url || "/placeholder.svg";
           return (
             <div className="card" key={p.id} style={{ "--accent": meta.accent }}>
               <Link href={`/${p.section}/${p.id}`} className="card-media-link">
                 <div className="card-img-wrap">
                   {p.tag ? <span className="card-tag">{p.tag}</span> : null}
                   <span className="card-section-badge">{meta.code}</span>
-                  {p.image_url ? (
-                    <img src={p.image_url} alt={p.name} loading="lazy" />
+                  {gallery.length > 1 ? (
+                    <span className="card-gallery-count">🖼 {gallery.length}</span>
                   ) : null}
+                  <img src={cover} alt={p.name} loading="lazy" />
                 </div>
               </Link>
               <div className="card-body">
